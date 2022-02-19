@@ -1,0 +1,2 @@
+# SmaatoApp
+ Smaato App - Challenge
