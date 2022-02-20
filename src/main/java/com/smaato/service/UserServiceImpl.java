@@ -4,6 +4,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +23,6 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private RedisTemplate<String, String> template;
 
-
 	/**
 	 * Get the number of online users in a certain period of time
 	 * 
@@ -33,9 +36,26 @@ public class UserServiceImpl implements UserService {
 				now.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
 	}
 
-	
 	public Long count() {
 		return template.opsForZSet().zCard(SMAATO_USER);
+	}
+
+	/**
+	 *   returns the list of users with in the score limit.The minimum value is given as negative infinity as we do not know the minimum value in the score
+	 * 
+	 */
+	public List<String> getSmaatoUserList() {
+		Set<String> redisKeys = template.opsForZSet().rangeByScore(SMAATO_USER, Double.NEGATIVE_INFINITY,
+				new Double(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+//		Set<String> redisKeys = template.opsForZSet().reverseRangeByScore(SMAATO_USER, Double.NEGATIVE_INFINITY,new Double(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+		List<String> keysList = new ArrayList<>();
+		Iterator<String> it = redisKeys.iterator();
+		while (it.hasNext()) {
+			String data = it.next();
+			log.info("User " + data);
+			keysList.add(data);
+		}
+		return keysList;
 	}
 
 	/**
@@ -50,7 +70,6 @@ public class UserServiceImpl implements UserService {
 
 	}
 
-	
 	/**
 	 * Accept new user
 	 * 
@@ -60,7 +79,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public boolean checkIfUserExists(Integer userid) {
 		boolean isUserExists = template.opsForZSet().add(SMAATO_USER, userid.toString(), Instant.now().toEpochMilli());
-		log.info("User ID " + userid + " is Exists :: " + isUserExists );
+		log.info(userid + " is new user :: " + isUserExists);
 		return isUserExists;
 	}
 }
