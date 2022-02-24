@@ -1,5 +1,7 @@
 package com.smaato.config;
 
+import java.util.concurrent.Executor;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,10 +10,23 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @Configuration
-@Import(value = ConnectionConfiguration.class)
+@Import(value = JedisConfig.class)
 public class ApplicationConfiguration {
+
+	@Bean(name = "asyncExecutor")
+	public Executor asyncExecutor() {
+		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		executor.setCorePoolSize(3);
+		executor.setMaxPoolSize(3);
+		executor.setQueueCapacity(100);
+		executor.setThreadNamePrefix("AsynchThread-");
+		executor.initialize();
+		return executor;
+	}
+
 	@Bean
 	@Autowired
 	@Primary

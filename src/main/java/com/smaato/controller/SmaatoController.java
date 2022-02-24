@@ -1,8 +1,10 @@
 package com.smaato.controller;
 
 import java.net.URI;
+import java.time.Duration;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,12 +50,15 @@ class SmaatoController {
 	 * @param id
 	 * @param endpoint
 	 * 
-	 *                 http://localhost:8080//api/smaato/accept?id=18&endpoint=http://localhost:8080/api/smaato/redirect
+	 *                 http://localhost:8080/api/smaato/accept?id=34&endpoint=http://localhost:8080/api/smaato/redirect
 	 * 
 	 * @return String
+	 * @throws InterruptedException
 	 */
+
 	@RequestMapping(value = "/api/smaato/accept")
-	public String accept(@RequestParam int id, @RequestParam(required = false) String endpoint) {
+	public CompletableFuture<String> accept(@RequestParam int id, @RequestParam(required = false) String endpoint)
+			throws InterruptedException {
 		String response = "failed";
 		boolean isNewUser = userService.checkIfUserExists(id);
 		if (isNewUser) {
@@ -61,13 +66,14 @@ class SmaatoController {
 		}
 		if (null != endpoint) {
 			String uri = endpoint + "?input=" + getCount();
-			log.info("endpoint values is " + uri);
-			log.info("Triggering " + uri);
+			log.debug("endpoint values is " + uri);
+			log.info(" Thread  : " + Thread.currentThread().getName() + " is calling  " + uri);
 			Long count = restTemplete.getForObject(uri, Long.class);
-			log.info("Request completed for " + endpoint);
-			log.info("user count" + count);
+			Thread.sleep(1000L);
+			log.info(" Thread  : " + Thread.currentThread().getName() + " request completed for " + uri);
+			log.info(" User Count " + count);
 		}
-		return response;
+		return CompletableFuture.completedFuture(response);
 	}
 
 	@GetMapping(value = "/api/smaato/redirect")
@@ -97,4 +103,11 @@ class SmaatoController {
 
 	}
 
+	
+	@RequestMapping(value = "/api/smaato/clear")
+	public Long removeAllUsers() {
+		Duration duration1 = Duration.ofDays(7);
+		return userService.clear(duration1);
+
+	}
 }

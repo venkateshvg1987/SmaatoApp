@@ -1,0 +1,13 @@
+logging.file=E:/myworkspace/SmaatoApp/application.log
+spring.redis.host=localhost
+spring.redis.port=6379
+
+server.connection-timeout=10s
+server.max-http-header-size=8KB
+
+server.tomcat.accept-count=500
+server.tomcat.max-threads=200
+server.tomcat.max-connections=10000
+erver.tomcat.min-spare-threads=10
+server.tomcat.max-swallow-size=2MB
+server.tomcat.max-http-post-size=2MB
