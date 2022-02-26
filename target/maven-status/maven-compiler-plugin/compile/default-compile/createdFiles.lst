@@ -1,0 +1,7 @@
+com\smaato\SmaatoApplication.class
+com\smaato\service\UserService.class
+com\smaato\config\ApplicationConfiguration.class
+com\smaato\model\User.class
+com\smaato\config\JedisConfig.class
+com\smaato\controller\SmaatoController.class
+com\smaato\service\UserServiceImpl.class
